@@ -2,7 +2,6 @@ package template
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"path/filepath"
 	"strings"
@@ -115,7 +114,6 @@ func gorillaMuxUrlTemplateVarList(vars []types.Variable) []string {
 //		return handler
 //	}
 func (t *httpServerTemplate) Render(ctx context.Context) write_strategy.Renderer {
-	fmt.Println("Hello from render")
 	f := NewFile("transporthttp")
 	f.ImportAlias(t.info.SourcePackageImport, serviceAlias)
 	f.HeaderComment(t.info.FileHeader)
