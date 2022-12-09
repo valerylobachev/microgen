@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	. "github.com/dave/jennifer/jen"
+	"github.com/samber/lo"
 	mstrings "github.com/valerylobachev/microgen/generator/strings"
 	"github.com/valerylobachev/microgen/generator/write_strategy"
 	"github.com/vetcher/go-astra/types"
@@ -141,7 +142,7 @@ func (t *httpConverterTemplate) Render(ctx context.Context) write_strategy.Rende
 	}
 
 	for _, fn := range t.decodersRequest {
-		f.Line().Add(t.decodeHTTPRequest(fn)).Line()
+		f.Line().Add(t.decodeHTTPRequest(ctx, fn)).Line()
 	}
 	for _, fn := range t.decodersResponse {
 		f.Line().Add(t.decodeHTTPResponse(fn)).Line()
@@ -210,7 +211,7 @@ func commonHTTPResponseEncoder() *Statement {
 //		err := json.NewDecoder(r.Body).Decode(&req)
 //		return req, err
 //	}
-func (t *httpConverterTemplate) decodeHTTPRequest(fn *types.Function) *Statement {
+func (t *httpConverterTemplate) decodeHTTPRequest(ctx context.Context, fn *types.Function) *Statement {
 	return Func().Id(decodeRequestName(fn)).
 		Params(
 			Id("_").Qual(PackagePathContext, "Context"),
@@ -220,26 +221,66 @@ func (t *httpConverterTemplate) decodeHTTPRequest(fn *types.Function) *Statement
 		Error(),
 	).BlockFunc(func(g *Group) {
 		arguments := RemoveContextIfFirst(fn.Args)
-		if FetchHttpMethodTag(fn.Docs) == "GET" {
-			if len(arguments) > 0 {
+		vars := buildHttpVars(fn)
+		if vars.HasQuery() || vars.HasPath() || vars.HasBody() {
+			if vars.HasQuery() || vars.HasPath() {
 				g.Var().Call(Id("_param").String())
 				g.Var().Id("ok").Bool()
 				g.Id("_vars").Op(":=").Qual(PackagePathGorillaMux, "Vars").Call(Id("r"))
-				for _, arg := range arguments {
-					g.List(Id("_param"), Id("ok")).Op("=").Id("_vars").Index(Lit(arg.Name)).
-						Line().If(Op("!").Id("ok")).Block(
-						Return(Nil(), Qual(PackagePathErrors, "New").Call(Lit("param "+arg.Name+" not found"))),
-					)
-					g.Add(stringToTypeConverter(&arg))
+				// path vars
+				for _, name := range vars.path {
+					arg, ok := lo.Find[types.Variable](arguments, func(v types.Variable) bool {
+						return v.Name == name
+					})
+					if ok {
+						g.List(Id("_param"), Id("ok")).Op("=").Id("_vars").Index(Lit(arg.Name)).
+							Line().If(Op("!").Id("ok")).Block(
+							Return(Nil(), Qual(PackagePathErrors, "New").Call(Lit("param "+arg.Name+" not found"))),
+						)
+						g.Add(stringToTypeConverter(&arg))
+					}
+				}
+				// query vars
+				for _, name := range vars.query {
+					arg, ok := lo.Find[types.Variable](arguments, func(v types.Variable) bool {
+						return v.Name == name
+					})
+					if ok {
+						g.List(Id("_param"), Id("ok")).Op("=").Id("_vars").Index(Lit(arg.Name)).
+							Line().If(Op("!").Id("ok")).Block(
+							Id("_param").Op("=").Lit(""),
+						)
+						g.Add(stringToTypeConverter(&arg))
+					}
 				}
 			}
+			// body
+			if vars.HasBody() {
+				arg, ok := lo.Find[types.Variable](arguments, func(v types.Variable) bool {
+					return v.Name == vars.body
+				})
+				if ok {
+					g.Var().Id(arg.Name).Add(fieldType(ctx, arg.Type, false))
+					g.Err().Op(":=").Qual(PackagePathJson, "NewDecoder").
+						Call(Id("r").Dot("Body")).Dot("Decode").Call(Op("&").Id(arg.Name))
+					g.If(Id("err").Op("!=").Nil()).Block(
+						Return(Nil(), Id("err")),
+					)
+
+				}
+			}
+
 			g.Return(Op("&").Qual(t.info.OutputPackageImport+"/transport", requestStructName(fn)).Values(DictFunc(func(d Dict) {
 				for _, arg := range arguments {
-					typename := types.TypeName(arg.Type)
-					if typename == nil {
-						panic("need to check and update validation rules: (1)")
+					if arg.Name == vars.body {
+						d[structFieldName(&arg)] = Line().Id(arg.Name)
+					} else {
+						typename := types.TypeName(arg.Type)
+						if typename == nil {
+							panic("need to check and update validation rules: (1)")
+						}
+						d[structFieldName(&arg)] = Line().Id(*typename).Call(Id(arg.Name))
 					}
-					d[structFieldName(&arg)] = Line().Id(*typename).Call(Id(arg.Name))
 				}
 			})), Nil())
 		} else {

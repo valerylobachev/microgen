@@ -1,0 +1,1 @@
+gen: ; go run ../../cmd/microgen/main.go -- -file=./api/service.go -out=. -main

@@ -4,9 +4,11 @@ import (
 	"context"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	. "github.com/dave/jennifer/jen"
+	"github.com/samber/lo"
 	mstrings "github.com/valerylobachev/microgen/generator/strings"
 	"github.com/valerylobachev/microgen/generator/write_strategy"
 	"github.com/vetcher/go-astra/types"
@@ -17,12 +19,33 @@ const (
 
 	HttpMethodTag  = "http-method"
 	HttpMethodPath = "http-path"
+	HttpQueryVars  = "http-query-vars"
+	HttpBody       = "http-body"
 )
 
 type httpServerTemplate struct {
 	info    *GenerationInfo
 	methods map[string]string
 	paths   map[string]string
+	vars    map[string]httpVars
+}
+
+type httpVars struct {
+	path  []string
+	query []string
+	body  string
+}
+
+func (h httpVars) HasQuery() bool {
+	return len(h.query) != 0
+}
+
+func (h httpVars) HasPath() bool {
+	return len(h.path) != 0
+}
+
+func (h httpVars) HasBody() bool {
+	return len(h.body) != 0
 }
 
 func NewHttpServerTemplate(info *GenerationInfo) Template {
@@ -42,11 +65,38 @@ func (t *httpServerTemplate) ChooseStrategy(ctx context.Context) (write_strategy
 func (t *httpServerTemplate) Prepare(ctx context.Context) error {
 	t.methods = make(map[string]string)
 	t.paths = make(map[string]string)
+	t.vars = make(map[string]httpVars)
+	urlPrefix := strings.Replace(mstrings.FetchMetaInfo(TagMark+HttpMethodPath, t.info.Iface.Docs), " ", "", -1)
+
 	for _, fn := range t.info.Iface.Methods {
 		t.methods[fn.Name] = FetchHttpMethodTag(fn.Docs)
-		t.paths[fn.Name] = buildMethodPath(fn)
+		t.paths[fn.Name] = buildMethodPath(fn, urlPrefix)
+		t.vars[fn.Name] = *buildHttpVars(fn)
 	}
 	return nil
+}
+
+func buildHttpVars(fn *types.Function) *httpVars {
+	vars := httpVars{
+		path:  make([]string, 0),
+		query: make([]string, 0),
+		body:  "",
+	}
+	// extract query vars
+	s := strings.Split(
+		strings.TrimSpace(mstrings.FetchMetaInfo(TagMark+HttpQueryVars, fn.Docs)),
+		" ",
+	)
+	vars.query = lo.Filter[string](s, func(v string, _ int) bool { return len(v) != 0 })
+	// extract path vars
+	url := strings.Replace(mstrings.FetchMetaInfo(TagMark+HttpMethodPath, fn.Docs), " ", "", -1)
+	r := regexp.MustCompile(`\{(.*?)\}`)
+	vars.path = lo.Map[string](r.FindAllString(url, -1), func(v string, _ int) string {
+		return strings.Trim(strings.Trim(v, "{"), "}")
+	})
+	// extract body
+	vars.body = strings.TrimSpace(strings.Replace(mstrings.FetchMetaInfo(TagMark+HttpBody, fn.Docs), " ", "", -1))
+	return &vars
 }
 
 func FetchHttpMethodTag(rawString []string) string {
@@ -57,12 +107,16 @@ func FetchHttpMethodTag(rawString []string) string {
 	return defaultHTTPMethod
 }
 
-func buildMethodPath(fn *types.Function) string {
+func buildMethodPath(fn *types.Function, urlPrefix string) string {
 	url := strings.Replace(mstrings.FetchMetaInfo(TagMark+HttpMethodPath, fn.Docs), " ", "", -1)
 	if url == "" {
-		return buildDefaultMethodPath(fn)
+		url = buildDefaultMethodPath(fn)
 	}
-	return url
+	if urlPrefix == "" {
+		return url
+	} else {
+		return urlPrefix + "/" + url
+	}
 }
 
 func buildDefaultMethodPath(fn *types.Function) string {
@@ -135,8 +189,18 @@ func (t *httpServerTemplate) Render(ctx context.Context) write_strategy.Renderer
 			if !t.info.AllowedMethods[fn.Name] {
 				continue
 			}
-			g.Id("mux").Dot("Methods").Call(Lit(t.methods[fn.Name])).Dot("Path").
-				Call(Lit("/" + t.paths[fn.Name])).Dot("Handler").Call(
+			g.Id("mux").Dot("Methods").Call(Lit(t.methods[fn.Name])).Op(".")
+			g.Id("Path").
+				Call(Lit("/" + t.paths[fn.Name])).Dot("")
+			if t.vars[fn.Name].HasQuery() {
+				g.Id("Queries").CallFunc(func(g *Group) {
+					for _, v := range t.vars[fn.Name].query {
+						g.Lit(v)
+						g.Lit("{" + v + "}")
+					}
+				}).Op(".")
+			}
+			g.Id("Handler").Call(
 				Line().Qual(PackagePathGoKitTransportHTTP, "NewServer").Call(
 					Line().Id("endpoints").Dot(endpointsStructFieldName(fn.Name)),
 					Line().Id(decodeRequestName(fn)),
