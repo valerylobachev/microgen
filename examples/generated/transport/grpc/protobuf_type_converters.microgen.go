@@ -5,8 +5,8 @@
 package transportgrpc
 
 import (
-	service "github.com/devimteam/microgen/examples/generated"
-	pb "github.com/devimteam/microgen/examples/protobuf"
+	service "github.com/valerylobachev/microgen/examples/generated"
+	pb "github.com/valerylobachev/microgen/examples/protobuf"
 )
 
 func MapStringStringToProto(stringsMap map[string]string) (map[string]string, error) {

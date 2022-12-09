@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/devimteam/microgen/generator/template"
+	"github.com/valerylobachev/microgen/generator/template"
 )
 
 type writerStrategy struct {

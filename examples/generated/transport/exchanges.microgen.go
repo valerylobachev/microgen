@@ -2,7 +2,7 @@
 
 package transport
 
-import generated "github.com/devimteam/microgen/examples/generated"
+import generated "github.com/valerylobachev/microgen/examples/generated"
 
 type (
 	UppercaseRequest struct {

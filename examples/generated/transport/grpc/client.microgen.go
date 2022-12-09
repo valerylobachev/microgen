@@ -3,8 +3,8 @@
 package transportgrpc
 
 import (
-	transport "github.com/devimteam/microgen/examples/generated/transport"
-	pb "github.com/devimteam/microgen/examples/protobuf"
+	transport "github.com/valerylobachev/microgen/examples/generated/transport"
+	pb "github.com/valerylobachev/microgen/examples/protobuf"
 	log "github.com/go-kit/kit/log"
 	opentracing "github.com/go-kit/kit/tracing/opentracing"
 	grpckit "github.com/go-kit/kit/transport/grpc"

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	. "github.com/dave/jennifer/jen"
-	"github.com/devimteam/microgen/generator/write_strategy"
+	"github.com/valerylobachev/microgen/generator/write_strategy"
 	"github.com/vetcher/go-astra/types"
 )
 
@@ -28,21 +28,20 @@ func responseStructName(signature *types.Function) string {
 
 // Renders exchanges file.
 //
-//  package visitsvc
+//	package visitsvc
 //
-//  import (
-//  	"gitlab.devim.team/microservices/visitsvc/entity"
-//  )
+//	import (
+//		"gitlab.devim.team/microservices/visitsvc/entity"
+//	)
 //
-//  type CreateVisitRequest struct {
-//  	Visit *entity.Visit `json:"visit"`
-//  }
+//	type CreateVisitRequest struct {
+//		Visit *entity.Visit `json:"visit"`
+//	}
 //
-//  type CreateVisitResponse struct {
-//  	Res *entity.Visit `json:"res"`
-//  	Err error         `json:"err"`
-//  }
-//
+//	type CreateVisitResponse struct {
+//		Res *entity.Visit `json:"res"`
+//		Err error         `json:"err"`
+//	}
 func (t *exchangeTemplate) Render(ctx context.Context) write_strategy.Renderer {
 	f := NewFile("transport")
 	f.HeaderComment(t.info.FileHeader)
@@ -77,10 +76,9 @@ func (t *exchangeTemplate) ChooseStrategy(ctx context.Context) (write_strategy.S
 
 // Renders exchanges that represents requests and responses.
 //
-//  type CreateVisitRequest struct {
-//  	Visit *entity.Visit `json:"visit"`
-//  }
-//
+//	type CreateVisitRequest struct {
+//		Visit *entity.Visit `json:"visit"`
+//	}
 func exchange(ctx context.Context, name string, params []types.Variable) Code {
 	if len(params) == 0 {
 		return Comment("Formal exchange type, please do not delete.").Line().

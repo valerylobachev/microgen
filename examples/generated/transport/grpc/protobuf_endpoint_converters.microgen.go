@@ -6,8 +6,8 @@ package transportgrpc
 import (
 	"context"
 	"errors"
-	transport "github.com/devimteam/microgen/examples/generated/transport"
-	pb "github.com/devimteam/microgen/examples/protobuf"
+	transport "github.com/valerylobachev/microgen/examples/generated/transport"
+	pb "github.com/valerylobachev/microgen/examples/protobuf"
 	empty "github.com/golang/protobuf/ptypes/empty"
 )
 

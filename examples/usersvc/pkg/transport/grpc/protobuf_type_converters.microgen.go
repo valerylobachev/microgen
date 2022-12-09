@@ -5,8 +5,8 @@
 package transportgrpc
 
 import (
-	pb "github.com/devimteam/microgen/examples/protobuf"
-	service "github.com/devimteam/microgen/examples/usersvc/pkg/usersvc"
+	pb "github.com/valerylobachev/microgen/examples/protobuf"
+	service "github.com/valerylobachev/microgen/examples/usersvc/pkg/usersvc"
 )
 
 func UserToProto(user service.User) (pb.User, error) {

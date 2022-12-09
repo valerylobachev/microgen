@@ -4,8 +4,8 @@
 package protobuf
 
 import (
-	entity "github.com/devimteam/microgen/example/svc/entity"
-	stringsvc "github.com/devimteam/protobuf/stringsvc"
+	entity "github.com/valerylobachev/microgen/example/svc/entity"
+	stringsvc "github.com/valerylobachev/protobuf/stringsvc"
 )
 
 func ToProto(str []map[string]interface{}) ([]map[string]interface{}, error) {

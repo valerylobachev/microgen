@@ -28,3 +28,6 @@ _testmain.go
 vendor/
 
 generator/test_out/*
+
+.idea/
+.vscode/

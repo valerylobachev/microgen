@@ -3,12 +3,12 @@ package stringsvc
 import (
 	"context"
 
-	"github.com/devimteam/microgen/examples/svc/entity"
+	"github.com/valerylobachev/microgen/examples/svc/entity"
 )
 
 // @microgen middleware, logging, grpc, http, recover, main, error-logging
 // @grpc-addr service.string
-// @protobuf github.com/devimteam/microgen/examples/protobuf
+// @protobuf github.com/valerylobachev/microgen/examples/protobuf
 type StringService interface {
 	// @logs-ignore ans, err
 	Uppercase(ctx context.Context, str ...map[string]interface{}) (ans string, err error)

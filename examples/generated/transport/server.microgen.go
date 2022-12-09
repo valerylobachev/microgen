@@ -4,7 +4,7 @@ package transport
 
 import (
 	"context"
-	generated "github.com/devimteam/microgen/examples/generated"
+	generated "github.com/valerylobachev/microgen/examples/generated"
 	endpoint "github.com/go-kit/kit/endpoint"
 	opentracing "github.com/go-kit/kit/tracing/opentracing"
 	opentracinggo "github.com/opentracing/opentracing-go"

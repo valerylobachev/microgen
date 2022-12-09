@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	mstrings "github.com/devimteam/microgen/generator/strings"
-	"github.com/devimteam/microgen/generator/template"
-	lg "github.com/devimteam/microgen/logger"
+	mstrings "github.com/valerylobachev/microgen/generator/strings"
+	"github.com/valerylobachev/microgen/generator/template"
+	lg "github.com/valerylobachev/microgen/logger"
 	"github.com/vetcher/go-astra/types"
 )
 

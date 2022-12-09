@@ -3,7 +3,7 @@
 package transporthttp
 
 import (
-	transport "github.com/devimteam/microgen/examples/generated/transport"
+	transport "github.com/valerylobachev/microgen/examples/generated/transport"
 	log "github.com/go-kit/kit/log"
 	opentracing "github.com/go-kit/kit/tracing/opentracing"
 	http "github.com/go-kit/kit/transport/http"

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	. "github.com/dave/jennifer/jen"
-	mstrings "github.com/devimteam/microgen/generator/strings"
+	mstrings "github.com/valerylobachev/microgen/generator/strings"
 	"github.com/vetcher/go-astra/types"
 )
 
@@ -185,8 +185,7 @@ func nameOfLastResultError(fn *types.Function) string {
 
 // Renders struct field.
 //
-//  	Visit *entity.Visit `json:"visit"`
-//
+//	Visit *entity.Visit `json:"visit"`
 func structField(ctx context.Context, field *types.Variable) *Statement {
 	s := structFieldName(field)
 	s.Add(fieldType(ctx, field.Type, false))
@@ -199,8 +198,7 @@ func structField(ctx context.Context, field *types.Variable) *Statement {
 
 // Renders func params for definition.
 //
-//  	visit *entity.Visit, err error
-//
+//	visit *entity.Visit, err error
 func funcDefinitionParams(ctx context.Context, fields []types.Variable) *Statement {
 	c := &Statement{}
 	c.ListFunc(func(g *Group) {
@@ -213,8 +211,7 @@ func funcDefinitionParams(ctx context.Context, fields []types.Variable) *Stateme
 
 // Renders field type for given func field.
 //
-//  	*repository.Visit
-//
+//	*repository.Visit
 func fieldType(ctx context.Context, field types.Type, allowEllipsis bool) *Statement {
 	c := &Statement{}
 	imported := false
@@ -271,9 +268,8 @@ func interfaceType(ctx context.Context, p *types.Interface) (code []Code) {
 
 // Renders key/value pairs wrapped in Dict for provided fields.
 //
-//		Err:    err,
-//		Result: result,
-//
+//	Err:    err,
+//	Result: result,
 func dictByVariables(fields []types.Variable) Dict {
 	return DictFunc(func(d Dict) {
 		for _, field := range fields {
@@ -284,8 +280,7 @@ func dictByVariables(fields []types.Variable) Dict {
 
 // Render list of function receivers by signature.Result.
 //
-//		Ans1, ans2, AnS3 -> ans1, ans2, anS3
-//
+//	Ans1, ans2, AnS3 -> ans1, ans2, anS3
 func paramNames(fields []types.Variable) *Statement {
 	var list []Code
 	for _, field := range fields {
@@ -300,8 +295,7 @@ func paramNames(fields []types.Variable) *Statement {
 
 // Render full method definition with receiver, method name, args and results.
 //
-//		func (e *Endpoints) Count(ctx context.Context, text string, symbol string) (count int)
-//
+//	func (e *Endpoints) Count(ctx context.Context, text string, symbol string) (count int)
 func methodDefinition(ctx context.Context, obj string, signature *types.Function) *Statement {
 	return Func().
 		Params(Id(rec(obj)). /*.Op("*")*/ Id(obj)).
@@ -316,8 +310,7 @@ func methodDefinitionFull(ctx context.Context, obj string, signature *types.Func
 
 // Render full method definition with receiver, method name, args and results.
 //
-//		func Count(ctx context.Context, text string, symbol string) (count int)
-//
+//	func Count(ctx context.Context, text string, symbol string) (count int)
 func functionDefinition(ctx context.Context, signature *types.Function) *Statement {
 	return Id(signature.Name).
 		Params(funcDefinitionParams(ctx, signature.Args)).

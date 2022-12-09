@@ -3,7 +3,7 @@ package template
 import (
 	"context"
 
-	"github.com/devimteam/microgen/generator/write_strategy"
+	"github.com/valerylobachev/microgen/generator/write_strategy"
 )
 
 type Template interface {

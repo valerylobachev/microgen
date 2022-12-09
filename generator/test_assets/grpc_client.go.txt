@@ -3,9 +3,9 @@
 package transportgrpc
 
 import (
-	testout "github.com/devimteam/microgen/generator/test_out"
-	protobuf "github.com/devimteam/microgen/generator/test_out/transport/converter/protobuf"
-	stringsvc "github.com/devimteam/protobuf/stringsvc"
+	testout "github.com/valerylobachev/microgen/generator/test_out"
+	protobuf "github.com/valerylobachev/microgen/generator/test_out/transport/converter/protobuf"
+	stringsvc "github.com/valerylobachev/protobuf/stringsvc"
 	grpc1 "github.com/go-kit/kit/transport/grpc"
 	grpc "google.golang.org/grpc"
 )

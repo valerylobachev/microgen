@@ -8,7 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	transport "github.com/devimteam/microgen/examples/generated/transport"
+	transport "github.com/valerylobachev/microgen/examples/generated/transport"
 	mux "github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"

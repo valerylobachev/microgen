@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	. "github.com/dave/jennifer/jen"
-	"github.com/devimteam/microgen/generator/write_strategy"
+	"github.com/valerylobachev/microgen/generator/write_strategy"
 	"github.com/vetcher/go-astra/types"
 )
 

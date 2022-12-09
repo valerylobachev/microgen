@@ -9,9 +9,9 @@ import (
 
 	"context"
 
-	strings2 "github.com/devimteam/microgen/generator/strings"
-	"github.com/devimteam/microgen/generator/template"
 	"github.com/stretchr/testify/assert"
+	strings2 "github.com/valerylobachev/microgen/generator/strings"
+	"github.com/valerylobachev/microgen/generator/template"
 	"github.com/vetcher/go-astra"
 	"github.com/vetcher/go-astra/types"
 )

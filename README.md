@@ -5,10 +5,10 @@ The goal is to generate code for service which not fun to write but it should be
 
 ## Install
 ```
-go get -u github.com/devimteam/microgen/cmd/microgen
+go get -u github.com/valerylobachev/microgen/cmd/microgen
 ```
 
-Note: If you have problems with building microgen, please, install [dep](https://github.com/golang/dep) and use `dep ensure` command to install correct versions of dependencies ([#29](https://github.com/devimteam/microgen/issues/29)).
+Note: If you have problems with building microgen, please, install [dep](https://github.com/golang/dep) and use `dep ensure` command to install correct versions of dependencies ([#29](https://github.com/valerylobachev/microgen/issues/29)).
 
 ## Usage
 ``` sh
@@ -224,11 +224,11 @@ package stringsvc
 import (
 	"context"
 
-	"github.com/devimteam/microgen/example/svc/entity"
+	"github.com/valerylobachev/microgen/example/svc/entity"
 )
 
 // @microgen middleware, logging, grpc, http, recovering, main
-// @protobuf github.com/devimteam/microgen/example/protobuf
+// @protobuf github.com/valerylobachev/microgen/example/protobuf
 type StringService interface {
 	// @logs-ignore ans, err
 	Uppercase(ctx context.Context, stringsMap map[string]string) (ans string, err error)

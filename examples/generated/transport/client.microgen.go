@@ -5,7 +5,7 @@ package transport
 import (
 	"context"
 	"errors"
-	generated "github.com/devimteam/microgen/examples/generated"
+	generated "github.com/valerylobachev/microgen/examples/generated"
 	opentracing "github.com/go-kit/kit/tracing/opentracing"
 	opentracinggo "github.com/opentracing/opentracing-go"
 	codes "google.golang.org/grpc/codes"
