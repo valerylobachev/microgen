@@ -4,12 +4,6 @@ import (
 	"time"
 )
 
-type PersonId string
-
-func (c PersonId) String() string {
-	return string(c)
-}
-
 type Person struct {
 	Id         string            `json:"id"`
 	Lastname   string            `json:"lastname"`

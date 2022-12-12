@@ -36,8 +36,6 @@ func init() {
 
 func main() {
 
-	fmt.Println(*flagFileName)
-
 	lg.Logger.Level = *flagVerbose
 	if *flagDebug {
 		lg.Logger.Level = 100

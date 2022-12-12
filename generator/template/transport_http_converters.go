@@ -151,7 +151,7 @@ func (t *httpConverterTemplate) Render(ctx context.Context) write_strategy.Rende
 		f.Line().Add(t.encodeHTTPRequest(fn)).Line()
 	}
 	for _, fn := range t.encodersResponse {
-		f.Line().Add(encodeHTTPResponse(fn)).Line()
+		f.Line().Add(t.encodeHTTPResponse(fn)).Line()
 	}
 
 	if t.state == AppendStrat {
@@ -349,7 +349,7 @@ func (t *httpConverterTemplate) decodeHTTPResponse(fn *types.Function) *Statemen
 //	func EncodeHTTPCountResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 //		return DefaultResponseEncoder(ctx, w, response)
 //	}
-func encodeHTTPResponse(fn *types.Function) *Statement {
+func (t *httpConverterTemplate) encodeHTTPResponse(fn *types.Function) *Statement {
 	return Func().Id(encodeResponseName(fn)).Params(
 		Id("ctx").Qual(PackagePathContext, "Context"),
 		Id("w").Qual(PackagePathHttp, "ResponseWriter"),
@@ -357,7 +357,24 @@ func encodeHTTPResponse(fn *types.Function) *Statement {
 	).Params(
 		Error(),
 	).Block(
-		Return().Id(commonHTTPResponseEncoderName).Call(Id("ctx"), Id("w"), Id("response")),
+		Do(func(st *Statement) {
+			if len(fn.Results) == 2 {
+				st.Id("res").Op(":=").Id("response").Assert(
+					Op("*").Qual(t.info.OutputPackageImport+"/transport", responseStructName(fn)))
+			}
+		}),
+
+		Return().Id(commonHTTPResponseEncoderName).Call(
+			Id("ctx"),
+			Id("w"),
+			Do(func(st *Statement) {
+				if len(fn.Results) == 2 {
+					st.Id("res").Op(".").Add(structFieldName(&fn.Results[0]))
+				} else {
+					st.Id("response")
+				}
+			}),
+		),
 	)
 }
 
