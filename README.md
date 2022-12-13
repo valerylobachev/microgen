@@ -132,6 +132,18 @@ type StringService interface {
 }
 ```
 
+#### @http-path
+This tag defines path prefix for service.
+
+Example:
+```go
+// @microgen http-client
+// @http-path api/persons/v1
+type PersonService interface {
+    ServiceMethod(ctx context.Context) (err error)
+}
+```
+
 ### Method's tags
 #### @microgen -
 Microgen will ignore method with this tag everywere it can.
@@ -177,6 +189,43 @@ Example:
 type StringService interface {
     // @http-method GET
     Count(ctx context.Context, text string, symbol string) (count int, positions []int, err error)
+}
+```
+
+#### @http-path
+This tag defines path for method. You can use path variables in curly brackets.
+
+Example:
+```go
+/// @microgen logging
+type PersonService interface {
+    // @http-path getPersonById/{id}
+    GetPersonById(ctx context.Context, id string, source string) (res *Person, err error)
+}
+```
+
+#### @http-query-vars
+This tag defines query variables.
+
+Example:
+```go
+/// @microgen logging
+type PersonService interface {
+    // @http-path getPersonById/{id}
+    // @http-query-vars source
+    GetPersonById(ctx context.Context, id string, source string) (res *Person, err error)
+}
+```
+
+#### @http-body
+This tag defines body variable.
+
+Example:
+```go
+/// @microgen logging
+type PersonService interface {
+    // @http-body payload
+    CreatePerson(ctx context.Context, payload CreatePersonPayload) (err error)
 }
 ```
 
