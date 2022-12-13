@@ -4,8 +4,8 @@ package protobuf
 
 import (
 	context "context"
-	testout "github.com/devimteam/microgen/generator/test_out"
-	stringsvc "github.com/devimteam/protobuf/stringsvc"
+	testout "github.com/valerylobachev/microgen/generator/test_out"
+	stringsvc "github.com/valerylobachev/protobuf/stringsvc"
 )
 
 func EncodeUppercaseRequest(_ context.Context, request interface{}) (interface{}, error) {

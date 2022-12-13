@@ -5,7 +5,7 @@ package stringsvc
 import (
 	context "context"
 	errors "errors"
-	entity "github.com/devimteam/microgen/example/svc/entity"
+	entity "github.com/valerylobachev/microgen/example/svc/entity"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	. "github.com/dave/jennifer/jen"
-	mstrings "github.com/devimteam/microgen/generator/strings"
-	"github.com/devimteam/microgen/generator/write_strategy"
+	mstrings "github.com/valerylobachev/microgen/generator/strings"
+	"github.com/valerylobachev/microgen/generator/write_strategy"
 	"github.com/vetcher/go-astra/types"
 )
 

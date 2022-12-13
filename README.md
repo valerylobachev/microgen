@@ -5,10 +5,10 @@ The goal is to generate code for service which not fun to write but it should be
 
 ## Install
 ```
-go get -u github.com/devimteam/microgen/cmd/microgen
+go get -u github.com/valerylobachev/microgen/cmd/microgen
 ```
 
-Note: If you have problems with building microgen, please, install [dep](https://github.com/golang/dep) and use `dep ensure` command to install correct versions of dependencies ([#29](https://github.com/devimteam/microgen/issues/29)).
+Note: If you have problems with building microgen, please, install [dep](https://github.com/golang/dep) and use `dep ensure` command to install correct versions of dependencies ([#29](https://github.com/valerylobachev/microgen/issues/29)).
 
 ## Usage
 ``` sh
@@ -132,6 +132,18 @@ type StringService interface {
 }
 ```
 
+#### @http-path
+This tag defines path prefix for service.
+
+Example:
+```go
+// @microgen http-client
+// @http-path api/persons/v1
+type PersonService interface {
+    ServiceMethod(ctx context.Context) (err error)
+}
+```
+
 ### Method's tags
 #### @microgen -
 Microgen will ignore method with this tag everywere it can.
@@ -180,6 +192,43 @@ type StringService interface {
 }
 ```
 
+#### @http-path
+This tag defines path for method. You can use path variables in curly brackets.
+
+Example:
+```go
+/// @microgen logging
+type PersonService interface {
+    // @http-path getPersonById/{id}
+    GetPersonById(ctx context.Context, id string, source string) (res *Person, err error)
+}
+```
+
+#### @http-query-vars
+This tag defines query variables.
+
+Example:
+```go
+/// @microgen logging
+type PersonService interface {
+    // @http-path getPersonById/{id}
+    // @http-query-vars source
+    GetPersonById(ctx context.Context, id string, source string) (res *Person, err error)
+}
+```
+
+#### @http-body
+This tag defines body variable.
+
+Example:
+```go
+/// @microgen logging
+type PersonService interface {
+    // @http-body payload
+    CreatePerson(ctx context.Context, payload CreatePersonPayload) (err error)
+}
+```
+
 #### cache-key
 This tag is used for caching middleware and allows user to write expression that should be used as key for cache instance.<br/>
 Key may be any string: it will directly writes to generated code.
@@ -224,11 +273,11 @@ package stringsvc
 import (
 	"context"
 
-	"github.com/devimteam/microgen/example/svc/entity"
+	"github.com/valerylobachev/microgen/example/svc/entity"
 )
 
 // @microgen middleware, logging, grpc, http, recovering, main
-// @protobuf github.com/devimteam/microgen/example/protobuf
+// @protobuf github.com/valerylobachev/microgen/example/protobuf
 type StringService interface {
 	// @logs-ignore ans, err
 	Uppercase(ctx context.Context, stringsMap map[string]string) (ans string, err error)

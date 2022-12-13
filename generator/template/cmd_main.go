@@ -6,8 +6,8 @@ import (
 	"context"
 
 	. "github.com/dave/jennifer/jen"
-	mstrings "github.com/devimteam/microgen/generator/strings"
-	"github.com/devimteam/microgen/generator/write_strategy"
+	mstrings "github.com/valerylobachev/microgen/generator/strings"
+	"github.com/valerylobachev/microgen/generator/write_strategy"
 )
 
 const (
@@ -125,7 +125,7 @@ func (t *mainTemplate) mainFunc(ctx context.Context) *Statement {
 			),
 		)
 		main.Line()
-		main.Var().Id(_service_).Qual(t.Info.SourcePackageImport, t.Info.Iface.Name).Comment("// TODO:").Op("=").Qual(t.Info.OutputPackageImport+"/service", constructorName(t.Info.Iface)).Call().
+		main.Var().Id(_service_).Qual(t.Info.SourcePackageImport, t.Info.Iface.Name).Op("=").Qual(t.Info.OutputPackageImport+"/service", constructorName(t.Info.Iface)).Call().
 			Comment(`Create new service.`)
 		//if Tags(ctx).Has(CachingMiddlewareTag) {
 		//	main.Id(_service_).Op("=").
@@ -192,12 +192,13 @@ func (t *mainTemplate) mainFunc(ctx context.Context) *Statement {
 }
 
 // Renders something like this
-//		func InitLogger(writer io.Writer) log.Logger {
-//			logger := log.NewJSONLogger(writer)
-//			logger = log.With(logger, "@timestamp", log.DefaultTimestampUTC)
-//			logger = log.With(logger, "caller", log.DefaultCaller)
-//			return logger
-//		}
+//
+//	func InitLogger(writer io.Writer) log.Logger {
+//		logger := log.NewJSONLogger(writer)
+//		logger = log.With(logger, "@timestamp", log.DefaultTimestampUTC)
+//		logger = log.With(logger, "caller", log.DefaultCaller)
+//		return logger
+//	}
 func (t *mainTemplate) initLogger() *Statement {
 	if mstrings.IsInStringSlice(nameInitLogger, t.rendered) {
 		return nil
@@ -212,21 +213,22 @@ func (t *mainTemplate) initLogger() *Statement {
 }
 
 // Renders something like this
-//		func serveGRPC(endpoints *clientsvc.Endpoints, errCh chan error) {
-// 			logger := log.With(logger, "transport", "grpc")
-// 			listener, err := net.Listen("tcp", *bindAddr)
-// 			if err != nil {
-// 				errCh <- err
-// 				return
-// 			}
 //
-// 			srv := transportgrpc.NewGRPCServer(endpoints)
-// 			grpcs := grpc.NewServer()
-// 			pb.RegisterClientServiceServer(grpcs, srv)
+//	func serveGRPC(endpoints *clientsvc.Endpoints, errCh chan error) {
+//		logger := log.With(logger, "transport", "grpc")
+//		listener, err := net.Listen("tcp", *bindAddr)
+//		if err != nil {
+//			errCh <- err
+//			return
+//		}
 //
-// 			logger.Log("addr", *bindAddr)
-// 			errCh <- grpcs.Serve(listener)
-// 		}
+//		srv := transportgrpc.NewGRPCServer(endpoints)
+//		grpcs := grpc.NewServer()
+//		pb.RegisterClientServiceServer(grpcs, srv)
+//
+//		logger.Log("addr", *bindAddr)
+//		errCh <- grpcs.Serve(listener)
+//	}
 func (t *mainTemplate) serveGrpc(ctx context.Context) *Statement {
 	if !Tags(ctx).HasAny(GrpcTag, GrpcServerTag) || mstrings.IsInStringSlice(nameServeGRPC, t.rendered) {
 		return nil

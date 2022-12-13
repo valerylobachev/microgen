@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/devimteam/microgen/generator"
-	mstrings "github.com/devimteam/microgen/generator/strings"
-	"github.com/devimteam/microgen/generator/template"
-	lg "github.com/devimteam/microgen/logger"
+	"github.com/valerylobachev/microgen/generator"
+	mstrings "github.com/valerylobachev/microgen/generator/strings"
+	"github.com/valerylobachev/microgen/generator/template"
+	lg "github.com/valerylobachev/microgen/logger"
 	"github.com/vetcher/go-astra"
 	"github.com/vetcher/go-astra/types"
 )
@@ -35,6 +35,7 @@ func init() {
 }
 
 func main() {
+
 	lg.Logger.Level = *flagVerbose
 	if *flagDebug {
 		lg.Logger.Level = 100
