@@ -3,6 +3,7 @@ package template
 import (
 	"context"
 	"path/filepath"
+	"strings"
 
 	. "github.com/dave/jennifer/jen"
 	"github.com/samber/lo"
@@ -339,7 +340,17 @@ func (t *httpConverterTemplate) decodeHTTPResponse(fn *types.Function) *Statemen
 	).
 		BlockFunc(func(g *Group) {
 			g.Var().Id("resp").Qual(t.info.OutputPackageImport+"/transport", responseStructName(fn))
-			g.Err().Op(":=").Qual(PackagePathJson, "NewDecoder").Call(Id("r").Dot("Body")).Dot("Decode").Call(Op("&").Id("resp"))
+
+			if len(fn.Results) == 2 {
+				// TODO
+				g.Err().Op(":=").Qual(PackagePathJson, "NewDecoder").Call(Id("r").
+					Dot("Body")).Dot("Decode").Call(
+					Op("&").Id("resp").Dot(mstrings.ToUpperFirst(fn.Results[0].Name)),
+				)
+			} else {
+				g.Err().Op(":=").Qual(PackagePathJson, "NewDecoder").Call(Id("r").
+					Dot("Body")).Dot("Decode").Call(Op("&").Id("resp"))
+			}
 			g.Return(Op("&").Id("resp"), Err())
 		})
 }
@@ -397,17 +408,45 @@ func (t *httpConverterTemplate) encodeHTTPRequest(fn *types.Function) *Statement
 
 func (t *httpConverterTemplate) encodeHTTPRequestBody(fn *types.Function) *Statement {
 	s := &Statement{}
-	pathVars := Lit(mstrings.ToURLSnakeCase(fn.Name))
-	if FetchHttpMethodTag(fn.Docs) == "GET" {
-		s.Id("req").Op(":=").Id("request").Assert(Op("*").Qual(t.info.OutputPackageImport+"/transport", requestStructName(fn))).Line()
-		pathVars.Add(t.pathConverters(fn))
+	s.Id("req").Op(":=").Id("request").Assert(Op("*").Qual(t.info.OutputPackageImport+"/transport", requestStructName(fn))).Line()
+
+	urlPrefix := strings.Replace(mstrings.FetchMetaInfo(TagMark+HttpMethodPath, t.info.Iface.Docs), " ", "", -1)
+	path := "/" + buildMethodPath(fn, urlPrefix)
+	vars := buildHttpVars(fn)
+	//pathVars := Lit(mstrings.ToURLSnakeCase(fn.Name))
+	s.Id("p").Op(":=").Lit(path).Line()
+	for _, pv := range vars.path {
+		s.Id("p").Op("=").Qual(PackagePathStrings, "Replace").Call(
+			Id("p"),
+			Lit("{"+pv+"}"),
+			Id("req").Dot(mstrings.ToUpperFirst(pv)),
+			Lit(-1),
+		).Line()
 	}
 	s.Id("r").Dot("URL").Dot("Path").Op("=").
-		Qual(PackagePathPath, "Join").Call(Id("r").Dot("URL").Dot("Path"), pathVars)
-	if FetchHttpMethodTag(fn.Docs) == "GET" {
-		s.Line().Return(Nil())
+		Qual(PackagePathPath, "Join").Call(Id("r").Dot("URL").Dot("Path"), Id("p")).Line()
+
+	if vars.HasQuery() {
+		s.Id("q").Op(":=").Id("r").Dot("URL").Dot("Query").Call().Line()
+		for _, pv := range vars.query {
+			s.Id("q").Dot("Add").Call(
+				Lit(pv),
+				Id("req").Dot(mstrings.ToUpperFirst(pv)),
+			).Line()
+		}
+		s.Id("r").Dot("URL").Dot("RawQuery").Op("=").Id("q").Dot("Encode").Call().Line()
+	}
+
+	if vars.HasBody() {
+		s.Return(Id(commonHTTPRequestEncoderName).
+			Call(Id("ctx"), Id("r"), Id("req").Dot(mstrings.ToUpperFirst(vars.body))))
+	} else if (vars.HasQuery() || vars.HasPath()) || FetchHttpMethodTag(fn.Docs) == "GET" {
+		s.Return(Id(commonHTTPRequestEncoderName).Call(
+			Id("ctx"),
+			Id("r"),
+			Op("&").Id("struct{}{}")))
 	} else {
-		s.Line().Return(Id(commonHTTPRequestEncoderName).Call(Id("ctx"), Id("r"), Id("request")))
+		s.Return(Id(commonHTTPRequestEncoderName).Call(Id("ctx"), Id("r"), Id("req")))
 	}
 	return s
 }

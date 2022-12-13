@@ -26,7 +26,6 @@ type CreatePersonPayload struct {
 	Phone      string            `json:"phone,omitempty"`
 	Email      string            `json:"email,omitempty"`
 	Attributes map[string]string `json:"attributes,omitempty"`
-	UpdatedAt  time.Time         `json:"updatedAt"`
 	UpdatedBy  string            `json:"updatedBy"`
 }
 
@@ -39,7 +38,6 @@ type UpdatePersonPayload struct {
 	Phone      string            `json:"phone,omitempty"`
 	Email      string            `json:"email,omitempty"`
 	Attributes map[string]string `json:"attributes,omitempty"`
-	UpdatedAt  time.Time         `json:"updatedAt"`
 	UpdatedBy  string            `json:"updatedBy"`
 }
 
